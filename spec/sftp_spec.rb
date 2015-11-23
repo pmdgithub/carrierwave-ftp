@@ -49,11 +49,12 @@ describe CarrierWave::Storage::SFTP do
       sftp.stub(:mkdir_p!)
       sftp.stub(:upload!)
       sftp.stub(:close_channel)
+      sftp.stub(:download!).and_return("Downloaded content")
       @stored = @storage.store!(@file)
     end
 
-    it "should use the calculated URL when retrieving a file" do
-      @stored.should_receive(:url).and_return('http://example.com/')
+    it "should use the path when retrieving a file" do
+      @stored.should_receive(:full_path)
       @stored.read
     end
 
@@ -97,7 +98,7 @@ describe CarrierWave::Storage::SFTP do
     end
 
     it "returns the content of the file" do
-      @stored.should_receive(:file).and_return(Struct.new(:body).new('some content'))
+      @stored.should_receive(:file).and_return(StringIO.new('some content'))
       @stored.read.should == 'some content'
     end
 

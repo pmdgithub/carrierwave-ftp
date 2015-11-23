@@ -58,7 +58,7 @@ module CarrierWave
         end
 
         def read
-          file.body
+          file.string
         end
 
         def content_type
@@ -83,12 +83,11 @@ module CarrierWave
         end
 
         def file
-          require 'net/http'
-          url = URI.parse(self.url)
-          req = Net::HTTP::Get.new(url.path)
-          Net::HTTP.start(url.host, url.port) do |http|
-            http.request(req)
+          io = StringIO.new
+          connection do |sftp|
+            sftp.download!(full_path, io)
           end
+          io
         end
 
         def connection
